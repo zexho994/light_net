@@ -2,15 +2,11 @@ package command
 
 import (
 	"flag"
-	"fmt"
 )
 
+var host = flag.String("host", "localhost", "host")
+var port = flag.String("port", "9944", "port")
+
 func Cmd() {
-	ip := flag.String("af", "ip4", "")
-	protocol := flag.String("pf", "tcp", "")
-
 	flag.Parse()
-
-	fmt.Println("addr family", *ip)
-	fmt.Println("protocol family", *protocol)
 }
