@@ -17,16 +17,27 @@ func main() {
 		return
 	}
 
+	rb := make([]byte, 1024)
 	for {
 		fmt.Print("> ")
+
 		in := bufio.NewReader(os.Stdin)
 		b, _, err := in.ReadLine()
 		if err != nil {
 			fmt.Println("type error:", err.Error())
 		}
+
 		_, err = conn.Write(b)
 		if err != nil {
 			fmt.Println("write error ,", err.Error())
 		}
+
+		ri, err := conn.Read(rb)
+		if err != nil {
+			fmt.Println("read error ," + err.Error())
+			return
+		}
+		fmt.Println(string(rb[0:ri]))
+
 	}
 }

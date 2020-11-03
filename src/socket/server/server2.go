@@ -47,12 +47,11 @@ func process(listen *net.TCPListener) {
 				return
 			}
 			fmt.Println(conn.RemoteAddr().String(), "msg: ", string(data[0:i]))
+			_, _ = conn.Write([]byte{'a', 'c', 'k'})
 			if string(data[:i]) == "exit" {
-				_, _ = conn.Write([]byte{'e', 'x', 'i', 't'})
 				_ = conn.Close()
 				return
 			}
-			_, _ = conn.Write(data[0:i])
 		}
 	}
 }
