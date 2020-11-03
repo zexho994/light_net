@@ -7,14 +7,15 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 )
 
-var host = flag.String("host", "localhost", "listening host , ip4 or ip6 or localhost")
+var host = flag.String("host", "127.0.0.1", "listening host , ip4 or ip6 or localhost")
 var port = flag.String("port", "9944", "listening port , 5000 ~ 65535")
 var pf = flag.String("pf", "tcp", "<tcp> or <udp> or <all>")
 
-func main() {
+func main1() {
 	flag.Parse()
 	conn, err := net.Dial(*pf, *host+":"+*port)
 	if err != nil {
@@ -26,12 +27,21 @@ func main() {
 
 	// 使用wait group进行同步
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(1)
 
-	go handleWrite(conn, &wg)
-	go handleRead(conn, &wg)
+	in := strings.Join(flag.Args(), " ")
+
+	if in == "exit" {
+		wg.Add(1)
+	} else {
+		_, _ = conn.Write([]byte(in))
+	}
 
 	wg.Wait()
+}
+
+func write(msg string, conn net.Conn) {
+	_, _ = conn.Write([]byte(msg))
 }
 
 func handleWrite(conn net.Conn, wg *sync.WaitGroup) {
