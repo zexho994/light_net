@@ -1,42 +1,42 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"net"
+	"os"
 )
 
 // upd client
-func UDPClient(ip string, port int) {
+func UDPHandle(ip string, port int) {
 	i := net.ParseIP(ip)
-	ua := net.UDPAddr{
+	desAddr := net.UDPAddr{
 		IP:   i,
 		Port: port,
 	}
 
-	listen, err := net.ListenUDP("udp", &ua)
+	conn, err := net.DialUDP("udp", nil, &desAddr)
 	if err != nil {
-		fmt.Println("listen upd file,", err.Error())
+		fmt.Println("dial udp error,", err.Error())
+		return
 	}
-
-	msg := make([]byte, 1024)
+	ackMsg := make([]byte, 1024)
 	for {
-		// read msg
-		n, remoteAddr, err := listen.ReadFromUDP(msg)
+		fmt.Print(">")
+		// 消息通过后续输入
+		in := bufio.NewReader(os.Stdin)
+		b, _, err := in.ReadLine()
+		_, err = conn.Write(b)
+
 		if err != nil {
-			fmt.Println("read upd msg error , ", err.Error())
+			fmt.Println("write to udp error,", err.Error())
+		}
+
+		msgLen, remote, err := conn.ReadFromUDP(ackMsg)
+		if err != nil {
+			fmt.Println("read ack msg from udp error,", err.Error())
 			return
 		}
-
-		// print msg
-		fmt.Printf("<%s> %s \n", remoteAddr, msg[:n])
-
-		// send ack
-		b := []byte{'a', 'c', 'k'}
-		_, err = listen.WriteToUDP(b, &ua)
-		if err != nil {
-			fmt.Println("write msg to udp error ,", err.Error())
-		}
-
+		fmt.Println(remote.String(), ":", string(ackMsg[:msgLen]))
 	}
-
 }

@@ -1,35 +1,26 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"net"
 	"os"
 )
 
-func main() {
-	flag.Parse()
-	if *pf == "tcp" {
-		// 建立tcp服务
-		ip := net.ParseIP(*host)
-		tcpAddr := net.TCPAddr{
-			IP:   ip,
-			Port: *port,
-		}
-		listen, err := net.ListenTCP(*pf, &tcpAddr)
-		if err != nil {
-			fmt.Printf("listen failed,err:%v\n", err)
-			os.Exit(1)
-		}
-		fmt.Println("connect success")
-
-		process(listen)
-	} else if *pf == "udp" { // udp
-
-	} else { // err
-
+func tcpHandle(host string, port int) {
+	// 建立tcp服务
+	ip := net.ParseIP(host)
+	tcpAddr := net.TCPAddr{
+		IP:   ip,
+		Port: port,
 	}
+	listen, err := net.ListenTCP("tcp", &tcpAddr)
+	if err != nil {
+		fmt.Printf("listen failed,err:%v\n", err)
+		os.Exit(1)
+	}
+	fmt.Println("connect success")
 
+	go process(listen)
 }
 
 func process(listen *net.TCPListener) {
@@ -47,7 +38,7 @@ func process(listen *net.TCPListener) {
 				return
 			}
 			fmt.Println(conn.RemoteAddr().String(), "msg: ", string(data[0:i]))
-			_, _ = conn.Write([]byte{'a', 'c', 'k'})
+			_, _ = conn.Write([]byte("ack"))
 			if string(data[:i]) == "exit" {
 				_ = conn.Close()
 				return
