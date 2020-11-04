@@ -11,6 +11,7 @@ var socketPath = flag.String("sp", "/tmp/ipc.socket", "The another process's soc
 func main() {
 	flag.Parse()
 	listen, err := net.Listen("unix", *socketPath)
+	defer listen.Close()
 	if err != nil {
 		panic("listen unix error," + err.Error())
 	}
@@ -27,8 +28,8 @@ func main() {
 func handleAccept(listener net.Listener) net.Conn {
 	conn, err := listener.Accept()
 	if err != nil {
-		fmt.Println("listen accept error,", err.Error())
-		return nil
+		_ = listener.Close()
+		panic("listen accept error," + err.Error())
 	}
 	return conn
 }
@@ -36,8 +37,8 @@ func handleAccept(listener net.Listener) net.Conn {
 func handleRead(conn net.Conn, data []byte) {
 	i, err := conn.Read(data)
 	if err != nil {
-		fmt.Println("conn read data error,", err.Error())
-		return
+		conn.Close()
+		panic("conn read data error," + err.Error())
 	}
 	fmt.Println("msg: ", string(data[:i]))
 }
@@ -45,6 +46,7 @@ func handleRead(conn net.Conn, data []byte) {
 func replayAck(conn net.Conn) {
 	_, err := conn.Write([]byte("ack"))
 	if err != nil {
-		fmt.Println("conn write ack error,", err.Error())
+		conn.Close()
+		panic("conn write ack error," + err.Error())
 	}
 }

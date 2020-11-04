@@ -16,6 +16,7 @@ func main() {
 	if err != nil {
 		panic("net dial error," + err.Error())
 	}
+	defer conn.Close()
 	fmt.Println("connect success, please type some ...")
 	data := make([]byte, 1024)
 	for true {
