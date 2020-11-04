@@ -12,18 +12,18 @@ import (
 )
 
 var host = flag.String("host", "127.0.0.1", "listening host , ip4 or ip6 or localhost")
-var port = flag.String("port", "9944", "listening port , 5000 ~ 65535")
+var port = flag.Int("port", 9944, "listening port , 5000 ~ 65535")
 var pf = flag.String("pf", "tcp", "<tcp> or <udp> or <all>")
 
 func main1() {
 	flag.Parse()
-	conn, err := net.Dial(*pf, *host+":"+*port)
+	conn, err := net.Dial(*pf, *host+":"+strconv.Itoa(*port))
 	if err != nil {
 		fmt.Println("Error connection", err)
 		os.Exit(1)
 	}
 	defer conn.Close()
-	fmt.Println("Connecting to " + *host + ":" + *port)
+	fmt.Println("Connecting to " + *host + ":" + strconv.Itoa(*port))
 
 	// 使用wait group进行同步
 	var wg sync.WaitGroup
